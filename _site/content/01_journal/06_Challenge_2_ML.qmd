@@ -1,0 +1,71 @@
+---
+title: "Challenge 2"
+author: "Ehssan Roshankar"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = TRUE,
+    message = FALSE,
+    warning = FALSE
+    )
+```
+#steps
+1 Build a model
+
+2 Create features with the recipes package
+3 Bundle the model and recipe with the workflow package
+
+4 Evaluate your model with the yardstick package
+
+```{r}
+# Load libraries
+library(tidyverse)
+library(parsnip)
+library(recipes)
+library(rsample)
+library(yardstick)
+library(rpart.plot)
+library(workflows)
+library(modeldata)
+# Read data
+bike_orderlines_tbl <- readRDS("bike_orderlines.rds")
+
+lm_model <- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+recipe_obj <- recipe(total_price ~ ., data = bike_orderlines_tbl) %>%
+  step_rm(order_id,lng,order_line,url,lat) %>%
+  #step_dummy(all_nominal(), one_hot = TRUE) %>%
+  #step_unknown(all_nominal(), -all_outcomes()) %>%
+  #step_normalize(all_numeric()) %>%
+  prep()
+
+
+train_data<- bike_orderlines_tbl[1:14000, ]
+test_data <- bike_orderlines_tbl[14001:15000, ]
+
+
+
+workflow_obj <- workflow() %>%
+  add_recipe(recipe_obj) %>%
+  add_model(lm_model)
+
+fitted_model <- fit(workflow_obj, data = train_data)
+print(test_data)
+
+  predict( fitted_model, new_data = test_data) %>%
+
+    bind_cols(test_data %>% select(total_price))%>%
+    
+    
+    yardstick::metrics(truth = total_price, estimate = .pred)
+   
+
+
+
+```
+#e
+
+end 

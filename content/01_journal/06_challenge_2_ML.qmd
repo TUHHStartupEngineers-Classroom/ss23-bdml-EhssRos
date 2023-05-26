@@ -1,107 +1,71 @@
 ---
-title: "2 supervised ML"
+title: "Challenge 2"
 author: "Ehssan Roshankar"
-
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = TRUE,
+    message = FALSE,
+    warning = FALSE
+    )
+```
+#steps
+1 Build a model
 
+2 Create features with the recipes package
+3 Bundle the model and recipe with the workflow package
 
+4 Evaluate your model with the yardstick package
 
 ```{r}
-# Standard
+# Load libraries
 library(tidyverse)
-
-# Modeling
 library(parsnip)
-
-# Preprocessing & Sampling
 library(recipes)
 library(rsample)
-
-# Modeling Error Metrics
 library(yardstick)
-
-# Plotting Decision Trees
 library(rpart.plot)
-
-# Load the data
+library(workflows)
+library(modeldata)
+# Read data
 bike_orderlines_tbl <- readRDS("bike_orderlines.rds")
 
-# Split the data into train and test sets
-#set.seed(123)
-
-#split_data <- initial_split(bike_orderlines_tbl, prop = 0.8)
-#train_data <- training(split_data)
-#test_data <- testing(split_data)
-
-# Build a linear regression model
 lm_model <- linear_reg() %>%
   set_engine("lm") %>%
   set_mode("regression")
 
-# Create a recipe object
-recipe_obj <- recipe(total_price ~ ., data = train_data) %>%
-  step_rm(order_id, order_line, order_date, model) %>%
-  step_dummy(all_nominal(), one_hot = TRUE) %>%
-  step_normalize(all_numeric()) %>%
+recipe_obj <- recipe(total_price ~ ., data = bike_orderlines_tbl) %>%
+  step_rm(order_id,lng,order_line,url,lat) %>%
+  #step_dummy(all_nominal(), one_hot = TRUE) %>%
+  #step_unknown(all_nominal(), -all_outcomes()) %>%
+  #step_normalize(all_numeric()) %>%
   prep()
 
-# Prepare the recipe
 
-train_transformed_tbl <- bake(recipe_obj, new_data = NULL)
-#test_transformed_tbl <- bake(recipe_obj, new_data = test_data)
-train_transformed_tbl <- train_transformed_tbl %>% set_names(str_replace_all(names(train_transformed_tbl), " |-", "_"))
-# Create a workflow object
+train_data<- bike_orderlines_tbl[1:14000, ]
+test_data <- bike_orderlines_tbl[14001:15000, ]
+
+
+
 workflow_obj <- workflow() %>%
   add_recipe(recipe_obj) %>%
   add_model(lm_model)
 
-# Fit the model using the workflow
-fitted_model <- workflow_obj %>% fit(data = train_transformed_tbl)
+fitted_model <- fit(workflow_obj, data = train_data)
+print(test_data)
+
+  predict( fitted_model, new_data = test_data) %>%
+
+    bind_cols(test_data %>% select(total_price))%>%
+    
+    
+    yardstick::metrics(truth = total_price, estimate = .pred)
+   
 
 
-
-
-new_cross_country <- tibble(
-        model = "Exceed AL SL new",
-        category_2 = "Cross-Country",
-        frame_material = "aluminium",
-        shimano_dura_ace = 0,
-        shimano_ultegra = 0,
-        shimano_105 = 0,
-        shimano_tiagra = 0,
-        Shimano_sora = 0,
-        shimano_deore = 0,
-        shimano_slx = 0,
-        shimano_grx = 0,
-        Shimano_xt = 1,
-        Shimano_xtr = 0,
-        Shimano_saint = 0,
-        SRAM_red = 0,
-        SRAM_force = 0,
-        SRAM_rival = 0,
-        SRAM_apex = 0,
-        SRAM_xx1 = 0,
-        SRAM_x01 = 0,
-        SRAM_gx = 0,
-        SRAM_nx = 0,
-        SRAM_sx = 0,
-        Campagnolo_potenza = 0,
-        Campagnolo_super_record = 0,
-        shimano_nexus = 0,
-        shimano_alfine = 0
-) 
-
-
-
-new_transformed_tbl <- bake(recipe_obj, new_data = new_cross_country) %>%
-  set_names(str_replace_all(names(.), " |-", "_"))
-
-# Predict the prices for the new data
-new_predictions <- predict(fitted_model, new_data = new_transformed_tbl)
-
-# Print the predicted prices
-print(new_predictions)
 
 ```
+#e
 
+end 

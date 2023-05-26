@@ -16,6 +16,8 @@ website:
         menu: 
           - text: "01 challenge 1"
             file: content/01_journal/05_Chapter_1_Challege.qmd
+          - text: "02 challenge 2"
+            file: content/01_journal/06_Challenge_2_ML.qmd
           
       - text: "Class notes"
         file: content/02_notes/05_class_notes.qmd
