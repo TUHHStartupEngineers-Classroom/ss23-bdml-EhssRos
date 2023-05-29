@@ -18,6 +18,11 @@ website:
             file: content/01_journal/05_Chapter_1_Challege.qmd
           - text: "02 challenge 2"
             file: content/01_journal/06_Challenge_2_ML.qmd
+          - text: "03 challenge 3"
+            file: content/01_journal/07_chall_3.qmd
+          - text: "04 challenge 4"
+            file: content/01_journal/08_chall_4.qmd
+          
           
       - text: "Class notes"
         file: content/02_notes/05_class_notes.qmd

@@ -1,0 +1,107 @@
+---
+title: "chall 3"
+author: "Ehssan Roshankar"
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+```
+
+Steps
+
+##1
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(skimr)
+library(GGally)
+library(rsample)
+library(recipes)
+library(h2o)
+h2o.init()
+url <- "https://raw.githubusercontent.com/TUHHStartupEngineers/dat_sci_ss20/master/10/product_backorders.csv"
+
+product_backorders_tbl <-  read.csv(url)
+
+```
+
+## 2
+
+```{r}
+
+set.seed(seed = 1113)
+split_obj <- rsample::initial_split(product_backorders_tbl, prop = 0.85)
+pb_train_tbl <- training(split_obj)
+pb_test_tbl <- testing(split_obj)
+
+recipe_obj <- recipe(went_on_backorder ~ ., data = pb_train_tbl) %>% 
+  step_zv(all_predictors()) %>% 
+  prep()
+
+train_tbl <- bake(recipe_obj, new_data = pb_train_tbl)
+test_tbl  <- bake(recipe_obj, new_data = pb_test_tbl)
+
+split_h2o <- h2o.splitFrame(as.h2o(train_tbl), ratios = c(0.85), seed = 1234)
+train_h2o <- split_h2o[[1]]
+valid_h2o <- split_h2o[[2]]
+test_h2o  <- as.h2o(test_tbl)
+
+y <- "went_on_backorder"
+x <- setdiff(names(train_h2o), y)
+
+model <- h2o.glm(y = y, x = x, training_frame = train_h2o, validation_frame = valid_h2o)
+
+
+
+
+
+
+
+```
+
+
+## 3
+
+```{r}
+automl_models_h2o <- h2o.automl(
+  x = x,
+  y = y,
+  training_frame    = train_h2o,
+  validation_frame  = valid_h2o,
+  leaderboard_frame = test_h2o,
+  max_runtime_secs  = 140,
+  nfolds            = 5 
+)
+
+```
+
+
+## 4
+
+```{r}
+automl_models_h2o@leaderboard
+
+```
+
+
+## 5
+```{r}
+
+leader_model <- automl_models_h2o@leader
+
+predictions <- h2o.predict(object = leader_model, newdata = test_h2o)
+
+predictions_tbl <- predictions %>% as_tibble()
+
+predictions_tbl
+
+```
+## 6
+
+
+```{r eval=FALSE, include=FALSE}
+
+h2o.saveModel(automl_models_h2o@leader, path = "h2o_models/")
+```
