@@ -103,5 +103,17 @@ predictions_tbl
 
 ```{r eval=FALSE, include=FALSE}
 
-h2o.saveModel(automl_models_h2o@leader, path = "h2o_models/")
+h2o.saveModel(automl_models_h2o@leaderboard, path = "h2o_modelsl/")
+
+
+saveRDS(automl_models_h2o, "save_dat/challenge_automl_models_h2o")
+
+saveRDS(train_h2o, "save_dat/train_h2o")
+saveRDS(test_h2o, "save_dat/test_h2o")
+saveRDS(valid_h2o, "save_dat/valid_h2o")
+saveRDS(train_tbl, "save_dat/train_tbl")
+saveRDS(test_tbl, "save_dat/test_tbl")
+
+
+saveRDS(predictions_tbl, "save_dat/predictions_tbl")
 ```
