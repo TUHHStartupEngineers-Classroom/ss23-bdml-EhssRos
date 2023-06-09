@@ -1,0 +1,208 @@
+---
+title: "chall 3"
+author: "Ehssan Roshankar"
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
+```
+
+
+
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(skimr)
+library(GGally)
+
+library(h2o)
+
+employee_attrition_tbl <- read_csv("datasets-1067-1925-WA_Fn-UseC_-HR-Employee-Attrition.txt")
+
+path_data_definitions <- "data_definitions.xlsx"
+definitions_raw_tbl   <- read_excel(path_data_definitions, sheet = 1, col_names = FALSE)
+
+plot_ggpairs <- function(data, color = NULL, density_alpha = 0.5) {
+  
+  color_expr <- enquo(color)
+  
+  if (rlang::quo_is_null(color_expr)) {
+    
+    g <- data %>%
+      ggpairs(lower = "blank") 
+    
+  } else {
+    
+    color_name <- quo_name(color_expr)
+    
+    g <- data %>%
+      ggpairs(mapping = aes_string(color = color_name), 
+              lower = "blank", legend = 1,
+              diag = list(continuous = wrap("densityDiag", 
+                                            alpha = density_alpha))) +
+      theme(legend.position = "bottom")
+  }
+  
+  
+  return(g)
+  
+}
+
+scatter_plot <- function(data, x_var, y_var) {
+  
+  x_var <- enquo(x_var)
+  y_var <- enquo(y_var)
+  
+  ret <- data %>% 
+           ggplot(aes(x = !!x_var, y = !!y_var)) + 
+           geom_point() + 
+           geom_smooth() +
+           ggtitle(str_c(as_label(y_var), " vs. ",as_label(x_var)))
+ 
+  return(ret)
+}
+
+
+
+```
+
+
+
+## Questions
+
+### 1
+
+```{r}
+employee_attrition_tbl %>%
+  select(Attrition, MonthlyIncome) %>%
+  plot_ggpairs(Attrition)
+```
+
+
+***Answer: c.***
+
+
+### 2
+
+```{r}
+employee_attrition_tbl %>%
+  select(Attrition, PercentSalaryHike) %>%
+  plot_ggpairs(Attrition)
+```
+
+very similar
+
+***Answer: d.***
+
+
+
+### Questio 3
+```{r}
+employee_attrition_tbl %>%
+  select(Attrition, StockOptionLevel) %>%
+  plot_ggpairs(Attrition)
+```
+
+***Aswer: c.***
+
+
+
+### 4
+
+```{r}
+employee_attrition_tbl %>%
+  select(Attrition, EnvironmentSatisfaction) %>%
+  plot_ggpairs(Attrition)
+```
+
+
+
+***Answer: a.***
+
+
+
+### 5
+
+
+
+```{r}
+employee_attrition_tbl %>%
+  select(Attrition, WorkLifeBalance) %>%
+  plot_ggpairs(Attrition)
+```
+
+
+***Answer: b. ***
+
+
+### 6
+
+
+
+```{r}
+employee_attrition_tbl %>%
+  select(Attrition, JobInvolvement) %>%
+  plot_ggpairs(Attrition)
+```
+
+
+***Answer: a.***
+
+### 7
+
+
+```{r}
+employee_attrition_tbl %>%
+  select(Attrition, OverTime) %>%
+  plot_ggpairs(Attrition)
+```
+
+
+***Answer: b. ***
+
+### 8
+
+
+
+```{r}
+employee_attrition_tbl %>%
+  select(Attrition, TrainingTimesLastYear, Education) %>%
+  plot_ggpairs(Attrition)
+```
+
+
+***Answer: b.***
+
+
+### 9
+
+```{r}
+employee_attrition_tbl %>%
+  select(Attrition, YearsAtCompany) %>%
+  plot_ggpairs(Attrition)
+```
+
+
+***Answer: b.***
+
+### 10
+
+
+
+```{r}
+employee_attrition_tbl %>%
+  select(Attrition, YearsSinceLastPromotion) %>%
+  plot_ggpairs(Attrition)
+```
+
+very sim
+
+***Answer: c.***
+
+
+
+
+
