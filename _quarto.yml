@@ -24,6 +24,8 @@ website:
             file: content/01_journal/08_chall_4.qmd
           - text: "05 challenge 5"
             file: content/01_journal/09_chall_5.qmd
+          - text: "06 challenge 6"
+            file: content/01_journal/10_chall_6.qmd
           
       - text: "Class notes"
         file: content/02_notes/05_class_notes.qmd
